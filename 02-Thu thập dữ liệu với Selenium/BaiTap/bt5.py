@@ -1,19 +1,14 @@
+from pygments.formatters.html import webify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import pandas as pd
 import re
 
-# Tạo dataframe rỗng
 d = pd.DataFrame({'name': [], 'birth': [], 'death': [], 'nationality': []})
-
-# Khởi tạo webdriver
 driver = webdriver.Edge()          
-# Mở trang
 url = "https://en.wikipedia.org/wiki/Adolf_Hitler"
 driver.get(url)
-
-# Đợi 2 giây
 time.sleep(2)
 
 
@@ -29,7 +24,7 @@ try:
         By.XPATH, "//th[text()='Born']/following-sibling::td"
     )
     birth = birth_element.text
-    birth = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", birth)[0]  # regex
+    birth = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", birth)[0]  
 except:
     birth = ""
 
@@ -53,12 +48,7 @@ except:
     nationality = ""
 
 # Tạo dictionary thông tin của hoạ sĩ
-painter = {
-    "name": name,
-    "birth": birth,
-    "death": death,
-    "nationality": nationality,
-}
+painter = {"name": name,"birth": birth,"death": death,"nationality": nationality,}
 
 # Chuyển dictionary thành DataFrame
 painter_df = pd.DataFrame([painter])
@@ -66,8 +56,5 @@ painter_df = pd.DataFrame([painter])
 # Thêm thông tin vào DF chính
 d = pd.concat([d, painter_df], ignore_index=True)
 
-# In ra DF
 print(d)
-
-# Đóng web driver
 driver.quit()

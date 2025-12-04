@@ -16,7 +16,7 @@ gecko_path = r"D:/OneDrive/Documents/GitHub/osds/02-Scraping Data/project2/gecko
 ser = Service(gecko_path)
 
 # Tạo tùy chọn
-options = webdriver.firefox.options.Options();
+options = webdriver.firefox.options.Options()
 options.binary_location ="C:/Program Files/Mozilla Firefox/firefox.exe"
 # Thiết lập firefox chỉ hiện thị giao diện
 options.headless = False

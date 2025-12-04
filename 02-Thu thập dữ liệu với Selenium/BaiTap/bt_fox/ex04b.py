@@ -18,6 +18,26 @@ driver = webdriver.Firefox(service=service, options=options)
 wait = WebDriverWait(driver, 10)
 
 try:
+    driver.get("https://www.reddit.com/login/")
+
+    # ô username là web component faceplate-text-input
+    username_host = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "faceplate-text-input[name='username']")))
+    username_shadow = username_host.shadow_root
+    username_input = username_shadow.find_element(By.CSS_SELECTOR,"input[name='username'][autocomplete='username']")
+
+    password_host = driver.find_element(By.CSS_SELECTOR, "faceplate-text-input[name='password']")
+    password_shadow = password_host.shadow_root
+    password_input = password_shadow.find_element(By.CSS_SELECTOR, "input[type='password']")
+
+    username_input.send_keys("random_name")
+    time.sleep(0.5)
+    password_input.send_keys("randombullshigo")
+
+    login_button = wait.until(EC.element_to_be_clickable((By.XPATH,"//button[.//span[contains(text(),'Log In')]]")))
+    login_button.click()
+
+    # đợi login xong
+    time.sleep(5)
     url_reddit = "https://www.reddit.com/r/BatmanArkham/"
     driver.get(url_reddit)
 

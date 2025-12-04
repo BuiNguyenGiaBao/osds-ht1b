@@ -1,189 +1,113 @@
-import time
-import re
-import string
-import sqlite3
+from pygments.formatters.html import webify
 from selenium import webdriver
-from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
+import pandas as pd
+import re
+import time
+
+# DataFrame kết quả
+d = pd.DataFrame({
+    "name": [],
+    "birth": [],
+    "death": [],
+    "nationality": [],
+})
+
+all_links = []
+
+driver = webdriver.Chrome()
+
+try:
+    for i in range(70, 71):
+        url = f'https://en.wikipedia.org/wiki/List_of_painters_by_name_beginning_with_%22{chr(i)}%22'
+        driver.get(url)
+        time.sleep(5)
+
+        # Các <li> trong nội dung chính
+        li_tags = driver.find_elements(By.CSS_SELECTOR, "div.mw-parser-output ul li")
+
+        for li in li_tags:
+            try:
+                a = li.find_element(By.TAG_NAME, "a")
+                href = a.get_attribute("href")
+                # Chỉ lấy link bài wiki bình thường
+                if href and href.startswith("https://en.wikipedia.org/wiki/") and "List_of_" not in href:
+                    if href not in all_links:
+                        all_links.append(href)
+                        if len(all_links) >= 3:
+                            break
+            except:
+                pass
+
+        if len(all_links) >= 3:
+            break
+finally:
+    driver.quit()
+
+all_links = list(dict.fromkeys(all_links))
+print("Tổng số link painters (giới hạn):", len(all_links))
 
 
-gecko_path = r"D:/bt_fox/geckodriver.exe"  
-ser = Service(gecko_path)
+for idx, link in enumerate(all_links, start=1):
+    print(idx, "/", len(all_links), ":", link)
 
-options = webdriver.firefox.options.Options()
-options.binary_location = r"C:/Program Files/Mozilla Firefox/firefox.exe"  
-options.headless = False
+    driver = webdriver.Chrome()
+    try:
+        driver.get(link)
+        time.sleep(5)
 
-driver = webdriver.Firefox(service=ser, options=options)
+        # name = title trang
+        try:
+            name = driver.find_element(By.TAG_NAME, "h1").text
+        except:
+            name = ""
 
-DB_FILE = "Painters_Data.db"
-TABLE_NAME = "painters_info"
+        # birth
+        try:
+            birth_element = driver.find_element(
+                By.XPATH, "//th[text()='Born']/following-sibling::td"
+            )
+            birth_text = birth_element.text
+            # lấy dạng "1 January 1900"
+            m = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", birth_text)
+            birth = m[0] if m else birth_text
+        except:
+            birth = ""
 
+        # death
+        try:
+            death_element = driver.find_element(
+                By.XPATH, "//th[text()='Died']/following-sibling::td"
+            )
+            death_text = death_element.text
+            m = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", death_text)
+            death = m[0] if m else death_text
+        except:
+            death = ""
 
-conn = sqlite3.connect(DB_FILE)
-cursor = conn.cursor()
+        # nationality
+        try:
+            nationality_element = driver.find_element(
+                By.XPATH, "//th[text()='Nationality']/following-sibling::td"
+            )
+            nationality = nationality_element.text
+        except:
+            nationality = ""
 
-cursor.execute(f"""
-CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-    name        TEXT PRIMARY KEY,
-    birth       TEXT,
-    death       TEXT,
-    nationality TEXT
-)
-""")
-conn.commit()
+    finally:
+        driver.quit()
 
-MAX_PAINTERS = 300         
-LETTERS = list(string.ascii_uppercase)  
-
-
-BASE_LIST_URL = (
-    "https://en.wikipedia.org/wiki/"
-    "List_of_painters_by_name_beginning_with_%22{}%22"
-)
-
-
-
-
-ROLE_KEYWORDS = [
-    "painter", "artist", "sculptor", "print-maker", "etcher",
-    "engraver", "photographer", "muralist", "water-colorist",
-    "war artist", "calligrapher", "draftsman", "landscape",
-]
-
-
-def split_life(life_str: str):
-    """
-    Nhận chuỗi trong ngoặc, trả về (birth, death)
-    - "1923–1985" -> ("1923", "1985")
-    - "born 1960" -> ("1960", "")
-    - "4th century BC" -> ("", "")
-    """
-    if not life_str:
-        return "", ""
-
-    # 2 năm (range)
-    m = re.search(r"(\d{3,4})\D+(\d{3,4})", life_str)
-    if m:
-        return m.group(1), m.group(2)
-
-    # 1 năm + chữ born -> còn sống
-    m = re.search(r"born[^0-9]*?(\d{3,4})", life_str.lower())
-    if m:
-        return m.group(1), ""
-
-    # 1 năm đơn lẻ -> cho vào birth, death để trống
-    m = re.search(r"(\d{3,4})", life_str)
-    if m:
-        return m.group(1), ""
-
-    return "", ""
-
-
-def parse_li(li):
-    """
-    Parse 1 <li> trên trang list.
-    Trả về dict: name, birth, death, nationality
-    """
-    # 1) Tên lấy từ <a> đầu tiên
-    a_tags = li.find_elements(By.TAG_NAME, "a")
-    if not a_tags:
-        return None
-
-    name = a_tags[0].text.strip()
-    if not name:
-        return None
-
-    # 2) Chuỗi full text của <li>
-    full_text = li.text.strip()
-
-    # Bỏ phần name ở đầu -> tail
-    if full_text.startswith(name):
-        tail = full_text[len(name):].lstrip(" ,–-")
-    else:
-        # fallback, nhưng thường không xảy ra
-        tail = full_text
-
-    # 3) Lấy life trong ngoặc đầu tiên
-    m = re.search(r"\(([^()]*)\)", tail)
-    life_str = None
-    if m:
-        life_str = m.group(1).strip()
-        details = tail[m.end():].lstrip(" ,")
-    else:
-        details = tail
-
-    birth, death = split_life(life_str or "")
-
-    # 4) Lấy nationality từ details
-    #    -> đoạn trước từ khóa role (painter/artist/...)
-    nationality = ""
-    dlow = details.lower()
-    best_idx = None
-    for role in ROLE_KEYWORDS:
-        idx = dlow.find(role)
-        if idx != -1:
-            if best_idx is None or idx < best_idx:
-                best_idx = idx
-
-    if best_idx is not None:
-        nationality = details[:best_idx].rstrip(" ,")
-    else:
-        # nếu không tìm thấy role thì thử lấy trước dấu phẩy đầu tiên
-        parts = details.split(",")
-        if parts:
-            nationality = parts[0].strip()
-
-    return {
+    painter = {
         "name": name,
         "birth": birth,
         "death": death,
-        "nationality": nationality,
+        "nationality": nationality
     }
+d = pd.concat([d, pd.DataFrame([painter])], ignore_index=True)
 
-total_crawled = 0
-names_seen = set()
+# Xem kết quả
+print(d.head())
 
-try:
-    for letter in LETTERS:
-        if total_crawled >= MAX_PAINTERS:
-            break
-
-        url = BASE_LIST_URL.format(letter)
-        print(f"\n=== Đang xử lý trang chữ {letter}: {url}")
-        driver.get(url)
-        time.sleep(2)
-
-        # Tất cả <li> trong phần nội dung chính
-        lis = driver.find_elements(By.CSS_SELECTOR, "div.mw-parser-output > ul > li")
-        print(f"  -> Tìm được {len(lis)} dòng <li> cho chữ {letter}")
-
-        for li in lis:
-            if total_crawled >= MAX_PAINTERS:
-                break
-
-            data = parse_li(li)
-            if not data:
-                continue
-
-            name = data["name"]
-            if name in names_seen:
-                continue
-            names_seen.add(name)
-
-            # Lưu vào DB
-            cursor.execute(
-                f"""INSERT OR IGNORE INTO {TABLE_NAME}
-                    (name, birth, death, nationality)
-                    VALUES (?, ?, ?, ?)""",
-                (data["name"], data["birth"], data["death"], data["nationality"]),
-            )
-            conn.commit()
-
-            total_crawled += 1
-            print(
-                f"  [{total_crawled}] {data['name']} | "
-                f"{data['birth']} - {data['death']} | {data['nationality']}"
-            )
-
-    print(f"\nHoàn thành, đã cào tổng cộng: {total_crawled} painter.")
+# Lưu Excel
+d.to_excel("painters_limited.xlsx", index=False)
+print("Đã lưu file painters_limited.xlsx") 

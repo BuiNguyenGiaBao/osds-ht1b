@@ -40,7 +40,7 @@ time.sleep(5)
 
 # Truy cap trang post bai
 url2 = 'https://www.reddit.com/user/tungit2024/submit/?type=TEXT'
-driver.get(url2);
+driver.get(url2)
 time.sleep(2)
 
 for i in range(17):

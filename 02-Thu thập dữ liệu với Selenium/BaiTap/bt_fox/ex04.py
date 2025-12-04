@@ -27,10 +27,12 @@ my_password = getpass.getpass('Please provide your password:')
 actionChains = ActionChains(driver)
 time.sleep(1)
 for i in range(5):
-    actionChains.key_down(Keys.TAB).perform()
+    actionChains.send_keys(Keys.TAB).perform()
+
     
-actionChains.send_keys(my_email).perform()
-actionChains.key_down(Keys.TAB).perform()
+actionChains.send_keys(Keys.TAB).perform()
+actionChains.send_keys(Keys.TAB).perform()
+
 
 actionChains.send_keys(my_password + Keys.ENTER).perform()
 
@@ -56,8 +58,10 @@ actionChains.key_down(Keys.TAB).perform()
 actionChains.send_keys('Le Nhat Tung').perform()
 
 for i in range(2):
-    actionChains.key_down(Keys.TAB).perform()
+    actionChains.send_keys(Keys.TAB).perform()
     time.sleep(3)
+
+
 
 actionChains.send_keys(Keys.ENTER).perform()
 

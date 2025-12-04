@@ -81,19 +81,19 @@ for i, bt in enumerate(buttons, 1):
     
     sp =parent_div
     
-    # Lat ten sp
+    # Lay ten sp
     try:
         tsp = sp.find_element(By.TAG_NAME, 'h3').text
     except:
         tsp=''
     
-    # Lat gia sp
+    # Lay gia sp
     try:
         gsp = sp.find_element(By.CLASS_NAME, 'text-blue-5').text
     except:
         gsp=''
     
-    # Lat hinh anh
+    # Lay hinh anh
     try:
         ha = sp.find_element(By.TAG_NAME, 'img').get_attribute('src')
     except:

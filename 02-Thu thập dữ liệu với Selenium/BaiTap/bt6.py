@@ -64,9 +64,7 @@ for idx, link in enumerate(all_links, start=1):
 
         # birth
         try:
-            birth_element = driver.find_element(
-                By.XPATH, "//th[text()='Born']/following-sibling::td"
-            )
+            birth_element = driver.find_element(By.XPATH, "//th[text()='Born']/following-sibling::td")
             birth_text = birth_element.text
             # lấy dạng "1 January 1900"
             m = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", birth_text)
@@ -76,9 +74,7 @@ for idx, link in enumerate(all_links, start=1):
 
         # death
         try:
-            death_element = driver.find_element(
-                By.XPATH, "//th[text()='Died']/following-sibling::td"
-            )
+            death_element = driver.find_element(By.XPATH, "//th[text()='Died']/following-sibling::td")
             death_text = death_element.text
             m = re.findall(r"[0-9]{1,2}\s+[A-Za-z]+\s+[0-9]{4}", death_text)
             death = m[0] if m else death_text
@@ -87,9 +83,7 @@ for idx, link in enumerate(all_links, start=1):
 
         # nationality
         try:
-            nationality_element = driver.find_element(
-                By.XPATH, "//th[text()='Nationality']/following-sibling::td"
-            )
+            nationality_element = driver.find_element(By.XPATH, "//th[text()='Nationality']/following-sibling::td")
             nationality = nationality_element.text
         except:
             nationality = ""

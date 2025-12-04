@@ -34,9 +34,7 @@ close_wheel_if_present(driver)
 
 # 2. Thử bấm vào "Sản phẩm"
 try:
-    san_pham_link = wait.until(
-        EC.element_to_be_clickable((By.LINK_TEXT, "Sản phẩm"))
-    )
+    san_pham_link = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "Sản phẩm")))
     driver.execute_script("arguments[0].click();", san_pham_link)
     print("Đã click vào menu 'Sản phẩm'.")
 except TimeoutException:
@@ -44,12 +42,7 @@ except TimeoutException:
     driver.get("https://gochek.vn/collections/all")
 
 # 3. Đợi list sản phẩm hiện ra
-products = wait.until(
-    EC.presence_of_all_elements_located((
-        By.CSS_SELECTOR,
-        "div.product-block.product-resize.site-animation.fixheight"
-    ))
-)
+products = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,"div.product-block.product-resize.site-animation.fixheight")))
 
 stt = []
 ten_san_pham = []

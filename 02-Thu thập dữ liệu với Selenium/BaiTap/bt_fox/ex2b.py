@@ -53,6 +53,7 @@ products = wait.until(
 
 stt = []
 ten_san_pham = []
+gia_ban_ban_dau=[]
 gia_ban = []
 hinh_anh = []
 
@@ -68,7 +69,11 @@ for i, sp in enumerate(products, start=1):
         gsp = sp.find_element(By.CSS_SELECTOR, ".box-pro-prices .pro-price span").text.strip()
     except:
         gsp = ""
-
+    # Lấy giá mặc định 
+    try:
+        gbd= gsp = sp.find_element(By.CSS_SELECTOR, ".box-pro-prices .compare-price").text.strip()
+    except:
+        gbd=''       
     # Lấy link hình ảnh
     try:
         ha = sp.find_element(By.CSS_SELECTOR, ".product-img img").get_attribute("src")
@@ -79,6 +84,7 @@ for i, sp in enumerate(products, start=1):
         stt.append(i)
         ten_san_pham.append(tsp)
         gia_ban.append(gsp)
+        gia_ban_ban_dau.append(gbd)
         hinh_anh.append(ha)
 
 # 4. Tạo DataFrame và lưu Excel
@@ -86,7 +92,9 @@ df = pd.DataFrame({
     "STT": stt,
     "Tên sản phẩm": ten_san_pham,
     "Giá bán": gia_ban,
+    "Giá ban đầu": gia_ban_ban_dau,
     "Hình ảnh": hinh_anh
+
 })
 
 df.to_excel("danh_sach_sp_3.xlsx", index=False)

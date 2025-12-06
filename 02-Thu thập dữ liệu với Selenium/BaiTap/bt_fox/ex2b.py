@@ -90,7 +90,7 @@ df = pd.DataFrame({
 
 })
 
-df.to_excel("danh_sach_sp_3.xlsx", index=False)
+df.to_csv("danh_sach_sp_3.csv", index=False)
 print("Đã lưu danh_sach_sp_3.xlsx")
 
 driver.quit()

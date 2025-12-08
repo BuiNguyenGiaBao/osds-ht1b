@@ -53,12 +53,6 @@ ROLE_KEYWORDS = [
 
 
 def split_life(life_str: str):
-    """
-    Nhận chuỗi trong ngoặc, trả về (birth, death)
-    - "1923–1985" -> ("1923", "1985")
-    - "born 1960" -> ("1960", "")
-    - "4th century BC" -> ("", "")
-    """
     if not life_str:
         return "", ""
 
@@ -81,10 +75,7 @@ def split_life(life_str: str):
 
 
 def parse_li(li):
-    """
-    Parse 1 <li> trên trang list.
-    Trả về dict: name, birth, death, nationality
-    """
+
     # 1) Tên lấy từ <a> đầu tiên
     a_tags = li.find_elements(By.TAG_NAME, "a")
     if not a_tags:

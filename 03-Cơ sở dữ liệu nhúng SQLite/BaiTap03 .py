@@ -9,7 +9,6 @@ TABLE_NAME = "VITAMIN"
 
 print("DB path:", os.path.abspath(DB_FILE))
 
-# Xoá DB cũ nếu có
 if os.path.exists(DB_FILE):
     os.remove(DB_FILE)
     print("Đã xoá DB cũ")

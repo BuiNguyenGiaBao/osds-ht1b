@@ -373,7 +373,7 @@ rows = cursor.fetchall()
 for ma_sp, ten_sp, gia_goc, gia_ban, pt in rows:
     print(f"  {ma_sp} | {ten_sp} | Gốc: {gia_goc} | Bán: {gia_ban} | Giảm: {pt}%")
 
-# 17. Câu lệnh xóa bản ghi trùng lặp theo URL (chỉ in ra, không tự chạy)
+# 17. Câu lệnh xóa bản ghi trùng lặp theo URL 
 print("\n17. Câu lệnh DELETE bản ghi trùng theo URL (KHÔNG tự chạy trong script):")
 delete_duplicates_sql = f"""
 WITH to_keep AS (
